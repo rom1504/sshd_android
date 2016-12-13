@@ -55,14 +55,17 @@ To bypass that problem, I decided to connect my phone to my server using a rever
 
 To do that I created a simple script `tun`:
 ```
-autossh -M 35478 -f -R 19995:localhost:8022 -N user@myserver.com
+autossh -M 0 -f -R 19995:localhost:8022 -N  -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 30" -o "ServerAliveCountMax 1" user@myserver.com
 ```
 
-Two important parts :
+Important parts :
 * -R 19995:localhost:8022 : that means the ssh server of the phone will be available on port 19995 of your server
-* autossh -M 35478 -f : autossh will keep the ssh connection open by reconnecting whenever needed
+* -o "ExitOnForwardFailure yes" -o "ServerAliveInterval 30" -o "ServerAliveCountMax 1" : options to improve the connection robustness
+* autossh -M 0 -f : autossh will keep the ssh connection open by reconnecting whenever needed
 
 That script can then be added in your `init` folder.
+
+I advise to also set ClientAliveInterval 30 and ClientAliveCountMax 1 in your server /etc/ssh/sshd_config file to close lingering connections as soon as possible.
 
 The result is you can then connect to your server from anywhere, and then just run `ssh -p 19995 localhost` to connect to your phone.
 
